@@ -152,7 +152,7 @@
                             </div>
                         @endauth
                         <div class="sidebar__widget mb-40">
-                            <h3 class="sidebar__widget-title mb-10">Kategori Berita</h3>
+                            <h3 class="sidebar__widget-title mb-10">Kategori Event</h3>
                             <div class="sidebar__widget-content">
                                 <ul>
                                     @foreach ($kategorisEvent as $data)

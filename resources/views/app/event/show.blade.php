@@ -66,7 +66,7 @@
                                     <div class="col-lg-12">
                                         <div class="blog-btn text-center w-100">
                                             <!-- Button trigger modal -->
-                                            <button type="button" class="tp-btn" data-bs-toggle="modal"
+                                            <button type="button" class="tp-btn" 
                                                 data-bs-target="#ikuteventModal">
                                                 IKUT EVENT
                                             </button>
@@ -209,5 +209,13 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        $('#LoginMember').click(function(e)
+        {
+            e.preventDefault();
+            $('#ModalLogin').modal('toggle');
+            $('.msg-alert').empty();
+        });
+    </script>
     <!-- postbox area end -->
 @endsection
