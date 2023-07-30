@@ -6,10 +6,11 @@ use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class EventPengguna extends Model
+class KatagoriVirtual extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'], $table = 'event_penggunas';
+
+    protected $guarded = ['id'], $table = 'tb_katagori_ruangan';
 
     public function getIdAttribute()
     {
@@ -18,13 +19,5 @@ class EventPengguna extends Model
         return $hashids->encode($this->attributes['id']);
     }
 
-    public function event()
-    {
-        return $this->belongsTo(Event::class, 'event_id');
-    }
- 
-    public function tamu()
-    {
-        return $this->belongsTo(BukuTamu::class, 'tamu_id');
-    }
+   
 }

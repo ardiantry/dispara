@@ -7,6 +7,7 @@
 <script type="text/javascript"> 
     $(document).ready( function () {
          
+        window.id_kat          =`{{@$app->request->input('id_kat')}}`;
         var markersPlugin       =false; 
         const sorage_room       ='{{asset('storage')}}/'; 
         
@@ -30,6 +31,12 @@
             var form_= document.forms.namedItem("simpanNamavirtual");
             const form_data   = new FormData(form_); 
             form_data.append('_token',   _token);
+            if(window.id_kat==undefined)
+            {
+                return;
+            }
+            form_data.append('id_kat',window.id_kat);
+             window.id_kat
             if(window.id_virtual!=undefined)
             {
                 form_data.append('id_vir', window.id_virtual);  
@@ -49,7 +56,7 @@
                     {
                         if(data.id_vr!='')
                         {
-                            var url_='?id='+data.id_vr;
+                            var url_=`?id_kat=${window.id_kat}&id=${data.id_vr}`;
                             window.id_virtual=data.id_vr;
                             window.history.pushState({'historycontent':url_}, null,url_);
                             cekstep();
@@ -473,7 +480,9 @@ function getdatavir()
      
     const form_vir        = new FormData(); 
     form_vir.append('_token',_token); 
-    form_vir.append('id_vir',window.id_virtual);  
+    form_vir.append('id_vir',window.id_virtual);   
+    form_vir.append('id_kat',window.id_kat);  
+    
     fetch('{{route('virtualroom.getdatavir')}}', { method: 'POST',body:form_vir}).then(res => res.json()).then(data => 
     {  
         var inpt_slct='';

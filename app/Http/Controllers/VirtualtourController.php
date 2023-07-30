@@ -9,6 +9,7 @@ use App\Models\Virtualtour;
 use App\Http\Requests\StoreKategoriArtikelRequest;
 use App\Http\Requests\UpdateKategoriArtikelRequest;
 use App\Models\KategoriBerita;
+use App\Models\KatagoriVirtual;  
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request; 
 use Carbon\Carbon;
@@ -30,9 +31,11 @@ class VirtualtourController extends Controller
           return view('dashboard.virtualtour.index');
     }
 
- public function ajax_tbl_virtualtour()
+ public function ajax_tbl_virtualtour(Request $request)
     {
-        $Virtualtour = Virtualtour::latest()->get();
+        
+        $id_kat = $this->Hashids->decode($request->id_kat)[0];
+        $Virtualtour = Virtualtour::where('id_kat',$id_kat)->latest()->get();
         return DataTables::of($Virtualtour)
                 ->editColumn('created_at', function ($created) {
                     return \Carbon\Carbon::parse($created->created_at)->isoFormat('dddd, DD MMMM Y');
@@ -87,7 +90,7 @@ public function save(Request $request)
             { 
                  $dec = $this->Hashids->decode($request->input('id_vir'))[0];
                 Virtualtour::where('id',$dec)->update([
-                'nama'          => ucwords($request->input('nama_ruangan')),
+                'nama'          => ucwords($request->input('nama_ruangan')), 
                 'deskripsi'     => $request->input('deskripsi'),
                 'kode_ruangan'  => $request->input('kode_ruangan'),
                 'updated_at'    =>Carbon::now()
@@ -101,6 +104,7 @@ public function save(Request $request)
                 'nama'              => ucwords($request->input('nama_ruangan')),
                 'deskripsi'         => $request->input('deskripsi'),
                 'kode_ruangan'      => $request->input('kode_ruangan'),
+                'id_kat'            =>$this->Hashids->decode($request->input('id_kat'))[0],
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()
                 ]);
@@ -302,7 +306,9 @@ public function simpanmarker(Request $req)
     {
 
             $dec = $this->Hashids->decode($req->input('id_vir'))[0];
-            $Virtualtour = Virtualtour::where('id','!=',$dec)->get();
+            $id_kat = $this->Hashids->decode($req->input('id_kat'))[0];
+ 
+            $Virtualtour = Virtualtour::where('id','!=',$dec)->where('id_kat',$id_kat)->get();
             print json_encode(array('Virtualtour'=>$Virtualtour));
     }
 
@@ -387,5 +393,31 @@ public function simpanmarker(Request $req)
             ]);
                  print json_encode(array('error'=>false));
     }
+ public function katagori_vrsave(Request $req)
+    {
+         
+           KatagoriVirtual::create([ 
+            'nama'=>$req->input('nama')
+            ]); 
+            print json_encode(array('error'=>false));
+    }
+ public function ajax_tbl_KatagoriVirtual(Request $req)
+    {
+         
+         $KatagoriVirtual = KatagoriVirtual::get();
+        return DataTables::of($KatagoriVirtual)
+                 ->editColumn('action', function ($action) {
+                return '<i class="dripicons-pencil btn btn-warning btn-sm Edit_data_kat"  data-id="'.$action->id.'" ></i>
+                        <i class="dripicons-to-do btn btn-success btn-sm detail_data_kat" data-id="'.$action->id.'"></i>
+                        <i class="dripicons-trash btn btn-danger btn-sm Hapus_data_kat" data-id="'.$action->id.'"></i>
+                        ';
+            })
+                ->addIndexColumn()
+                ->make(true); 
+    }
+
+
+
+
     
 }

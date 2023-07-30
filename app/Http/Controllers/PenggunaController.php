@@ -10,8 +10,8 @@ use Hashids\Hashids;
 use App\Models\Pengguna;
 use App\Helpers\Activity;
 use App\Models\Pengaturan;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
+use Illuminate\Support\Str; 
+use Illuminate\Http\Request; 
 use App\Mail\VerifyPenggunaEmail;
 use App\Exports\MemberExportExcel;
 use App\Imports\MemberImportExcel;
@@ -28,15 +28,21 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StorePenggunaRequest;
 use App\Http\Requests\UpdatePenggunaRequest;
 use Illuminate\Support\Carbon;
-
+use App\Models\EventPengguna;
+use App\Models\BukuTamu;
 
 class PenggunaController extends Controller
 {
+
 
     // public function __construct()
     // {
     //     $this->middleware(['auth', 'verified']);
     // }
+     public function __construct()
+    {
+        $this->Hashids = new \Hashids\Hashids(env('MY_SECRET_SALT_KEY', 'MySecretSalt'));
+    }
 
     public function getUsername()
     {
@@ -121,7 +127,7 @@ class PenggunaController extends Controller
                $alert .='<li>'.$msg.'</li>';
              }
 
-        }
+        } 
         $alert .=$request->input('password')!=$request->input('repassword')?'<li>Password harus sama</li>':'';
         if($alert=='')
         { 
@@ -146,6 +152,7 @@ class PenggunaController extends Controller
 
                 } catch (Exception $error) {
                     $error = true;
+                    $alert='<li>Pengguna sudah ada</li>';
                    
                 }
         }
@@ -177,6 +184,111 @@ class PenggunaController extends Controller
         }
         print json_encode(array('error'=>$error,'alert'=>$alert));
     }
+ public function profilemember(Request $request)
+    {
+        if(@Session::get('session_pengguna'))
+        {
+
+           return view('app.member.index');
+        }
+        else
+        {
+           echo '<h3 style="text-align:center;">access denied <a href="'.url('').'">kembali</a></h3>';
+             return ;
+        }
+    }
+public function uploadmember(Request $request)
+    {
+        $error=true;
+        $img='';
+        if($request->has('foto'))
+        {
+
+            $pict     = $request->file('foto')->store('pict_profile');  
+            $id       = Session::get('session_pengguna')->id;
+          
+            Pengguna::where('id',$id)->update([
+            'gambar'=>$pict
+            ]);
+            $error=false;
+            $img=url('storage/'.$pict); 
+            $session_pengguna=Pengguna::where('id',$id)->first();
+            $request->session()->put('session_pengguna', $session_pengguna); 
+        }
+         print json_encode(array('error'=>$error,'img'=>$img));
+    }
+public function memberLogout(Request $request)
+    {
+        Session::flush();
+         print json_encode(array('error'=>false));
+    }
+    public function editmember(Request $request)
+    {
+            $id       = Session::get('session_pengguna')->id;
+            Pengguna::where('id',$id)->update([
+                'nama'=>$request->input('nama'),
+                'no_hp'=>$request->input('no_hp'),
+                'instansi'=>$request->input('instansi'),
+            ]);
+            $session_pengguna=Pengguna::where('id',$id)->first();
+            $request->session()->put('session_pengguna', $session_pengguna); 
+             print json_encode(array('error'=>false,'alert'=>'update berhasil'));
+    }
+
+    
+  
+  public function ajax_tbl_Event(Request $request)
+    {
+        $id         = Session::get('session_pengguna')->id;
+        $tamu       = BukuTamu::latest()->where('user_id', $id)->first(); 
+        $id_tamu    = $this->Hashids->decode($tamu->id)[0];
+        $EventPengguna = EventPengguna::latest()->where('tamu_id',  $id_tamu)->get(); 
+        return DataTables::of($EventPengguna)
+                 ->editColumn('aksi_input', function ($data) {
+                    return ' <input type="checkbox" name="aksi['.$data->id.']" value="'.$data->id.'">
+                             <input type="hidden" name="id_event_pengguna[]" value="'.$data->id.'">';
+                })
+                  ->editColumn('title', function ($data) {
+                    return @$data->event['title'];
+                })
+                ->editColumn('nama', function ($data) {
+                    return @$data->tamu->user['nama'];
+                })
+                 ->editColumn('pelindung', function ($data) {
+                    return @$data->tamu['pelindung'];
+                })
+                 ->editColumn('no_hp', function ($data) {
+                    return @$data->tamu['no_hp'];
+                })
+                  ->editColumn('email', function ($data) {
+                    return @$data->tamu->user['email'];
+                })
+                 ->editColumn('status_', function ($data) {
+                        switch(@$data->status)
+                        {
+                        case 'proses': 
+                        $status_='<span class="badge badge-warning">Proses</span>'; 
+                        break;
+                        case  'setujui': 
+                        $status_='<span class="badge badge-success">Setujui</span>';
+
+                        break;
+                        case'tolak':
+                        $status_='<span class="badge badge-danger">Batal</span>';
+
+                        break;
+                        }
+                    return $status_;
+                })
+                ->editColumn('created_at', function ($created) {
+                    return \Carbon\Carbon::parse($created->created_at)->isoFormat('dddd, DD MMMM Y');
+                }) 
+                ->rawColumns(['aksi_input','status_'])
+                ->addIndexColumn()
+                ->make(true); 
+    }
+
+
     public function edit($id)
     {
         $decrypted = Crypt::decryptString($id);

@@ -1,6 +1,17 @@
 @extends('app.layouts.main')
 @section('title', 'Home')
 @section('app')
+<style type="text/css">
+    .bg-grey {
+  background: rgb(247, 248, 249);
+}
+.fix.blog-round {
+  height: 200px;
+}
+.blog-edu { 
+  min-height: 200px;
+}
+</style>
     <!-- slider-area -->
     <section class="slider-area">
         <div class="slider-active slider-arrow">
@@ -71,7 +82,7 @@
     <!-- slider-area-end -->
 
     <!-- video-area -->
-    <section class="video-area pt-110 pb-120 wow fadeInUp" data-wow-duration=".8s" data-wow-delay=".3s">
+    <section class="bg-grey video-area pt-110 pb-120 wow fadeInUp" data-wow-duration=".8s" data-wow-delay=".3s">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -106,7 +117,7 @@
                         <h2 class="tp-section-title mb-20">Headline News</h2>
                     </div>
                 </div>
-            </div>
+            </div> 
             <div class="row">
                 @forelse($beritas as $data)
                     <div class="col-xl-4 col-lg-6 col-md-6">
@@ -141,4 +152,142 @@
         </div>
     </section>
     <!-- blog-area-end -->
+
+
+ <!-- Event -->
+@php
+$tb_event=App\Models\Event::limit(3)->get();
+//dd($tb_event);
+@endphp
+    <section class="bg-grey blog-area pt-115 pb-110 wow fadeInUp" data-wow-duration=".8s" data-wow-delay=".3s">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-title text-center mb-65">
+                        <h2 class="tp-section-title mb-20">Event</h2>
+                    </div>
+                </div>
+            </div> 
+            <div class="row">
+                @forelse($tb_event as $data)
+                    <div class="col-xl-4 col-lg-6 col-md-6">
+                        <div class="tp-blog tp-blog-parent mb-60">
+                            <div class="tp-blog__thumb">
+                                <div class="fix blog-round">
+                                    <a href="{{ route('app-blog.show', $data['id']) }}"><img
+                                            src="{{ asset('storage/' . $data['image']) }}" alt="{{ $data['title'] }}"></a>
+                                </div>
+                            </div>
+                            <div class="tp-blog__content blog-edu p-relative">
+                                <div class="tp-blog__meta-list mb-10">
+                                    <span><i class="fi fi-rr-calendar"></i> {{ $data->created_at->format('M d, Y') }}
+                                    </span>
+                                     
+                                </div>
+                                <h3 class="tp-blog__title mb-15"><a
+                                        href="{{ route('app-event.show', $data['id']) }}">{{ $data['title'] }}</a></h3>
+                                <span><i class="fi fi-rr-clock"></i> {{ $data->created_at->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                      
+                    </div>
+                @empty
+                    <p class="text-center">Oppsss... Tidak ada Berita tersedia</p>
+                @endforelse
+            </div>
+        </div>
+    </section>
+    <!-- event-area-end -->
+
+<!-- Event -->
+@php
+$tb_artikel=App\Models\Artikel::limit(3)->get();
+//dd($tb_event);
+@endphp
+    <section class="blog-area pt-115 pb-110 wow fadeInUp" data-wow-duration=".8s" data-wow-delay=".3s">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-title text-center mb-65">
+                        <h2 class="tp-section-title mb-20">Artikel</h2>
+                    </div>
+                </div>
+            </div> 
+            <div class="row">
+                @forelse($tb_artikel as $data)
+                    <div class="col-xl-4 col-lg-6 col-md-6">
+                        <div class="tp-blog tp-blog-parent mb-60">
+                            <div class="tp-blog__thumb">
+                                <div class="fix blog-round">
+                                    <a href="{{ route('app-blog.show', $data['id']) }}"><img
+                                            src="{{ asset('storage/' . $data['image']) }}" alt="{{ $data['title'] }}"></a>
+                                </div>
+                            </div>
+                            <div class="tp-blog__content blog-edu p-relative">
+                                <div class="tp-blog__meta-list mb-10">
+                                    <span><i class="fi fi-rr-calendar"></i> {{ $data->created_at->format('M d, Y') }}
+                                    </span>
+                                     
+                                </div>
+                                <h3 class="tp-blog__title mb-15"><a
+                                        href="{{ route('app-edutips.show', $data['id']) }}">{{ $data['title'] }}</a></h3>
+                                <span><i class="fi fi-rr-clock"></i> {{ $data->created_at->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                      
+                    </div>
+                @empty
+                    <p class="text-center">Oppsss... Tidak ada Berita tersedia</p>
+                @endforelse
+            </div>
+        </div>
+    </section>
+    <!-- event-area-end -->
+
+
+@php
+$tbWisata=App\Models\Wisata::limit(3)->get();
+//dd($tb_event);
+@endphp
+    <section class="bg-grey  blog-area pt-115 pb-110 wow fadeInUp" data-wow-duration=".8s" data-wow-delay=".3s">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-title text-center mb-65">
+                        <h2 class="tp-section-title mb-20">Wisata</h2>
+                    </div>
+                </div>
+            </div> 
+            <div class="row">
+                @forelse($tbWisata as $data)
+                    <div class="col-xl-4 col-lg-6 col-md-6">
+                        <div class="tp-blog tp-blog-parent mb-60">
+                            <div class="tp-blog__thumb">
+                                <div class="fix blog-round">
+                                    <a href="{{ route('app-blog.show', $data['id']) }}"><img
+                                            src="{{ asset('storage/' . $data['image']) }}" alt="{{ $data['title'] }}"></a>
+                                </div>
+                            </div>
+                            <div class="tp-blog__content blog-edu p-relative">
+                                <div class="tp-blog__meta-list mb-10">
+                                    <span><i class="fi fi-rr-calendar"></i> {{ $data->created_at->format('M d, Y') }}
+                                    </span>
+                                     
+                                </div>
+                                <h3 class="tp-blog__title mb-15"><a
+                                        href="{{ route('app-tour.show', $data['id']) }}">{{ $data['title'] }}</a></h3>
+                                <span><i class="fi fi-rr-clock"></i> {{ $data->created_at->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                      
+                    </div>
+                @empty
+                    <p class="text-center">Oppsss... Tidak ada Berita tersedia</p>
+                @endforelse
+            </div>
+        </div>
+    </section>
+    <!-- event-area-end -->
+
+
 @endsection

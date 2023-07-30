@@ -1,9 +1,15 @@
 @extends('app.layouts.main')
 @section('title', 'Event')
 @section('app')
+@php
+$member=@Session::get('session_pengguna');
+@endphp
 <style type="text/css">
     .basic-login { 
   border: unset;
+}
+.btn-block {
+  width: 100%;
 }
 </style>
     <!-- breadcrumb-area -->
@@ -61,13 +67,14 @@
                                     {!! $eventPostingan['isi'] !!}
                                 </div>
                             </div>
-                            @if (!$eventPenggunaStatus)
+                           
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="blog-btn text-center w-100">
                                             <!-- Button trigger modal -->
+
                                             <button type="button" class="tp-btn" 
-                                                data-bs-target="#ikuteventModal">
+                                                id="{{@Session::get('session_pengguna')?'Isibukutamu':'LoginMember'}}">
                                                 IKUT EVENT
                                             </button>
                                         </div>
@@ -77,124 +84,73 @@
                                             <div class="modal-dialog modal-lg modal-dialog-centered">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
+                                                        <h4>Form Peserta Event</h4>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <div class="basic-login">
-                                                            @if ($message = session('success'))
-                                                                <div class="alert alert-success" role="alert">
-                                                                    {{ $message }}!
+                                                            <form action="#" method="POST" id="daftarEvent" name="daftarEvent">
+                                                                <div class="msg-alert"></div>
+                                                                <div class="form-group row mb-3">
+                                                                    <label for="name" class="col-md-4">Nama Lengkap</label>
+                                                                    <div class="col-md-8">
+                                                                        <input type="text" name="name" readonly="readonly" 
+                                                                            value="{{@$member->nama}}"
+                                                                            placeholder="Masukan nama Anda" pattern="[^0-9]+"
+                                                                            required
+                                                                            oninput="this.value=this.value.replace(/[0-9]/g,'');"
+                                                                            autofocus autocomplete="name" class="form-control"/> 
+                                                                    </div>
                                                                 </div>
-                                                            @elseif($message = session('error'))
-                                                                <div class="alert alert-danger" role="alert">
-                                                                    {{ $message }}
+
+                                                                 <div class="form-group row mb-3">
+                                                                    <label for="email" class="col-md-4">Email</label>
+                                                                    <div class="col-md-8">
+                                                                        <input type="text" name="email" readonly="readonly" 
+                                                                            value="{{@$member->email}}"
+                                                                            placeholder="Masukan Email Anda" pattern="[^0-9]+"
+                                                                            required
+                                                                            oninput="this.value=this.value.replace(/[0-9]/g,'');"
+                                                                            autofocus autocomplete="email" class="form-control"/> 
+                                                                    </div>
                                                                 </div>
-                                                            @elseif($errors->any())
-                                                                <div class="alert alert-danger" role="alert">
-                                                                    Terjadi kesalahan
-                                                                </div>
-                                                            @endif
-                                                            @guest
-                                                                <h3 class="text-center mb-60">Formulir Pendaftaran</h3>
-                                                                <form
-                                                                    action="{{ route('buku-tamu.store', ['postingan' => $eventPostingan['id']]) }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    <label for="name">Nama Lengkap</label>
-                                                                    <input id="name" type="text" name="name"
-                                                                        value="{{ old('name') }}"
-                                                                        placeholder="Masukan nama Anda" pattern="[^0-9]+"
-                                                                        required
-                                                                        oninput="this.value=this.value.replace(/[0-9]/g,'');"
-                                                                        autofocus autocomplete="name" />
-                                                                    @error('name')
-                                                                        <span role="alert">
-                                                                            <strong
-                                                                                class="text-danger">{{ $message }}</strong>
-                                                                        </span>
-                                                                    @enderror
-                                                                    <label for="email">Email</label>
-                                                                    <input id="email" type="email" name="email"
-                                                                        value="{{ old('email') }}"
-                                                                        placeholder="Masukan alamat Email anda" required
-                                                                        autocomplete="username" />
-                                                                    @error('email')
-                                                                        <span role="alert">
-                                                                            <strong
-                                                                                class="text-danger">{{ $message }}</strong>
-                                                                        </span>
-                                                                    @enderror
-                                                                    <label for="pelindung">Pelindung</label>
-                                                                    <input id="pelindung" type="text" name="pelindung"
-                                                                        value="{{ old('pelindung') }}"
-                                                                        placeholder="Instansi/Lembaga/Organisasi/Masyarakat Umum"
-                                                                        required />
-                                                                    @error('pelindung')
-                                                                        <span role="alert">
-                                                                            <strong
-                                                                                class="text-danger">{{ $message }}</strong>
-                                                                        </span>
-                                                                    @enderror
-                                                                    <label for="alamat">Alamat Domisili</label>
-                                                                    <input id="alamat" type="text" name="alamat"
-                                                                        value="{{ old('alamat') }}"
-                                                                        placeholder="Masukan alamat domisili Anda" required />
-                                                                    @error('alamat')
-                                                                        <span role="alert">
-                                                                            <strong
-                                                                                class="text-danger">{{ $message }}</strong>
-                                                                        </span>
-                                                                    @enderror
-                                                                    <label for="no_hp">Nomor Handphone</label>
-                                                                    <input id="no_hp" pattern="[0-9]*" name="no_hp"
-                                                                        value="{{ old('no_hp') }}" inputmode="numeric"
+                                                                 <div class="form-group row mb-3">
+                                                                    <label for="no_hp" class="col-md-4">No Hp</label>
+                                                                    <div class="col-md-8">
+                                                                        <input id="no_hp" pattern="[0-9]*" name="no_hp" readonly="readonly" 
+                                                                        value="{{@$member->no_hp}}" inputmode="numeric"
                                                                         minlength="10" maxlength="13" required
                                                                         placeholder="Masukan Nomor Handphone Anda"
-                                                                        oninput="this.value=this.value.replace(/[^0-9]/g,'');" />
-                                                                    @error('no_hp')
-                                                                        <span role="alert">
-                                                                            <strong
-                                                                                class="text-danger">{{ $message }}</strong>
-                                                                        </span>
-                                                                    @enderror
-                                                                    <label for="password">Password</label>
-                                                                    <input id="password" type="password" name="password"
-                                                                        autocomplete="new-password" required />
-                                                                    @error('password')
-                                                                        <span role="alert">
-                                                                            <strong
-                                                                                class="text-danger">{{ $message }}</strong>
-                                                                        </span>
-                                                                    @enderror
-                                                                    <label for="password_confirmation">Konfirmasi
-                                                                        Password</label>
-                                                                    <input id="password_confirmation" type="password"
-                                                                        name="password_confirmation"
-                                                                        autocomplete="new-password" required />
-                                                                    @error('password_confirmation')
-                                                                        <span role="alert">
-                                                                            <strong
-                                                                                class="text-danger">{{ $message }}</strong>
-                                                                        </span>
-                                                                    @enderror
-                                                                    <div class="mt-10"></div>
-                                                                    <button type="submit" class="tp-btn w-100">Daftar
-                                                                        sekarang</button>
-                                                                </form>
-                                                            @else
-                                                                <h3 class="text-center mb-60">Apa anda yakin ingin mengikuti
-                                                                    event ini?</h3>
-                                                                <form
-                                                                    action="{{ route('buku-tamu-older.store', ['postingan' => $eventPostingan['id']]) }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    <button type="submit" class="tp-btn w-100">Ya,
-                                                                        Ikut</button>
-                                                                </form>
-                                                            @endguest
+                                                                        oninput="this.value=this.value.replace(/[^0-9]/g,'');"  class="form-control"/>
+                                                                    </div>
+                                                                </div>
 
-                                                        </div>
+                                                                 <div class="form-group row mb-3">
+                                                                    <label for="no_hp" class="col-md-4">Alamat</label>
+                                                                    <div class="col-md-8">
+                                                                       <input id="alamat" type="text" name="alamat"
+                                                                        value=""
+                                                                        placeholder="Masukan alamat domisili Anda" required  class="form-control"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group row mb-3">
+                                                                     <label for="Instansi" class="col-md-4">Instansi</label>
+                                                                      <div class="col-md-8">
+                                                                    <input id="Instansi" type="text" name="instansi"
+                                                                        value="{{@$member->instansi}}"
+                                                                        placeholder="Instansi/Lembaga/Organisasi/Masyarakat Umum"
+                                                                        required class="form-control" />
+                                                                        </div>
+                                                                  </div>      
+                                                                <div class="form-grou row justify-content-md-end">
+                                                                    <div class="col-md-8">
+                                                                        <button class="btn btn-primary btn-block" type="submit">Ikut</button>
+                                                                        
+                                                                    </div>
+                                                                </div>
+                                                                 
+                                                            </form>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -202,7 +158,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                            
                         </article>
                     </div>
                 </div>
@@ -210,12 +166,63 @@
         </div>
     </div>
     <script type="text/javascript">
-        $('#LoginMember').click(function(e)
+        $('body').delegate('#LoginMember','click',function(e)
         {
             e.preventDefault();
-            $('#ModalLogin').modal('toggle');
+            $('#ModalLogin').modal('show');
             $('.msg-alert').empty();
         });
+        $('body').delegate('#Isibukutamu','click',function(e)
+        {
+            e.preventDefault();
+            $('#ikuteventModal').modal('show');
+            $('.msg-alert').empty();
+        });
+
+
+        @if(@Session::get('session_pengguna'))
+
+
+ $('body').delegate('#daftarEvent','submit',function(e)
+        {
+            e.preventDefault();
+            var $this=$(this);
+            var label_btn= $this.find('button[type="submit"]').text();
+            $this.find('.msg-alert').empty();
+            $this.find('button[type="submit"]').html('loading...');
+            $this.find('button[type="submit"]').attr('disabled','disabled');  
+            const eventsimpan    = document.forms.namedItem('daftarEvent'); 
+            const event_simpan   = new FormData(eventsimpan);
+            event_simpan.append('_token', '{{csrf_token()}}'); 
+            event_simpan.append('id_member', '{{$member->id}}'); 
+            event_simpan.append('id_event', '{{$eventPostingan->id}}');   
+            fetch('{{route('join.event')}}', { method: 'POST',body:event_simpan}).then(res => res.json()).then(data => 
+            {
+                $this.find('button[type="submit"]').html(label_btn);
+                $this.find('button[type="submit"]').removeAttr('disabled','disabled');  
+
+               var stst_=data.error?'danger':'success';
+               $this.find('.msg-alert').html(`<div class="alert alert-${stst_} text-center"><ul>${data.alert}</ul></div>`);
+               if(!data.error)
+               {
+                
+                     setTimeout(function(){ 
+                                    $('#ikuteventModal').modal('hide');
+                            },2000);
+
+               }
+               
+            }).catch(error => { 
+                $this.find('button[type="submit"]').html(label_btn);
+                $this.find('button[type="submit"]').removeAttr('disabled','disabled');  
+                $this.find('.msg-alert').html('<div class="alert alert-danger text-center">Eror koneksi buruk</div>');
+
+            }); 
+
+        });
+
+        @endif
+        
     </script>
     <!-- postbox area end -->
 @endsection

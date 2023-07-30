@@ -85,6 +85,11 @@
                             <input class="form-control" type="datetime-local" name="tgl_selesai"
                                 value="{{ old('tgl_selesai', $acara['tgl_selesai']) }}" id="tgl_selesai" required>
                         </div>
+                         <div class="mb-3">
+                            <label for="author">Author</label>
+                            <input class="form-control" type="text" name="author"
+                                value="{{ old('author', $acara['author'], @Auth::user()->name)}}"   required>
+                        </div>
                         <div class="mb-3">
                             <label for="elm1">Isi</label>
                             <textarea id="elm1" name="isi">{{ old('isi', $acara['isi']) }}</textarea>

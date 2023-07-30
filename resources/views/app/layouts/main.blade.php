@@ -7,7 +7,7 @@
     <title>DISPARA | @yield('title')</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    
     @include('app.layouts.link')
 </head>
 
@@ -30,13 +30,16 @@
     </div>
     <!-- back to top end -->
 
+
+    @if(\Request::route()->getName()!='virtual-view.index') 
     @include('app.layouts.navbar')
+    @endif  
     <main>
         @yield('app')
     </main>
-    @include('app.layouts.footer')
-
-
+        @if(\Request::route()->getName()!='virtual-view.index')
+        @include('app.layouts.footer')
+        @endif  
     @include('app.layouts.script')
 </body>
 

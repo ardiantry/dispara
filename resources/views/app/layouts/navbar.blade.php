@@ -1,5 +1,6 @@
 <!-- header area start -->
 @php
+
 if(@Session::get('session_pengguna'))
 {
  
@@ -79,7 +80,7 @@ if(@Session::get('session_pengguna'))
                                 <div class="header-meta header-meta-white">
                                     <ul>
                                         @if(@Session::get('session_pengguna'))
-                                        <li><a title="{{@Session::get('session_pengguna')->nama}}" href="{{url('profile/member')}}" class="d-none d-md-block"><i
+                                        <li><a title="{{@Session::get('session_pengguna')->nama}}" href="{{route('profile.member')}}" class="d-none d-md-block"><i
                                                     class="fi fi-rr-user"></i></a>
                                         </li>
                                         @else
@@ -232,9 +233,16 @@ if(@Session::get('session_pengguna'))
                $this.find('.msg-alert').html(`<div class="alert alert-${stst_} text-center">${data.alert}</div>`);
                if(!data.error)
                {
-                    setTimeout(function(){
-                                window.location.reload();
-                        },2000);
+                    @if(\Request::route()->getName()!='app-event.show') 
+                        setTimeout(function(){
+                                    window.location.reload();
+                            },2000);
+                    @else 
+                     setTimeout(function(){
+                            $('#ModalLogin').modal('hide');
+                            $('#ikuteventModal').modal('show');
+                            },2000);
+                    @endif
 
                }
                
@@ -265,9 +273,17 @@ if(@Session::get('session_pengguna'))
                $this.find('.msg-alert').html(`<div class="alert alert-${stst_} text-center"><ul>${data.alert}</ul></div>`);
                if(!data.error)
                {
+                    @if(\Request::route()->getName()!='app-event.show') 
+                        setTimeout(function(){
+                                    window.location.reload();
+                            },2000);
+                    @else 
                     setTimeout(function(){
-                                window.location.reload();
-                        },2000);
+                                   $('#ModalLogin').modal('hide');
+                                    $('#ikuteventModal').modal('show');
+                            },2000);
+                     
+                    @endif
 
                }
                

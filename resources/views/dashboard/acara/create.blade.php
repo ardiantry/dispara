@@ -75,6 +75,11 @@
                             <input class="form-control" type="datetime-local" name="tgl_selesai"
                                 value="{{ old('tgl_selesai') }}" id="tgl_selesai" required>
                         </div>
+                         <div class="mb-3">
+                            <label for="author">Author</label>
+                            <input class="form-control" type="text" name="author"
+                                value="{{ old('author')?old('author'):@Auth::user()->name }}"   required>
+                        </div>
                         <div class="mb-3">
                             <label for="elm1">Isi</label>
                             <textarea id="elm1" name="isi">{{ old('isi') }}</textarea>

@@ -5,24 +5,7 @@
 <link rel="stylesheet" href="{{asset('assets/vritual/photo.min.css')}}"/>
 <link rel="stylesheet" href="{{asset('assets/vritual/markers.min.css')}}"/>  
 <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
-
-<!--   <section class="breadcrumb__area include-bg pt-150 pb-150 breadcrumb__overlay"
-        data-background="{{ asset('app/assets/img/breadcrumb/pantai-bg.jpg') }}">
-        <div class="container">
-            <div class="row">
-                <div class="col-xxl-12">
-                    <div class="breadcrumb__content p-relative z-index-1">
-                        <h3 class="breadcrumb__title mb-20">Virtual view</h3>
-                        <div class="breadcrumb__list">
-                            <span><a href="/">Home</a></span>
-                            <span class="dvdr"><i class="fa-regular fa-angle-right"></i></span>
-                            <span class="sub-page-black">Virtual view</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> -->
+ 
  <div id="viewer"  style="width: 100%;"></div>  
  <div id="ModalShowLink" class="modal fade bs-example-modal-center" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">

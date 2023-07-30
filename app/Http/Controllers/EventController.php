@@ -8,10 +8,12 @@ use App\Models\KategoriEvent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreEventRequest;
-use App\Http\Requests\UpdateEventRequest;
+use App\Http\Requests\UpdateEventRequest; 
+use Yajra\DataTables\Facades\DataTables; 
+use App\Models\EventPengguna;
+use Illuminate\Http\Request;
 
-
-class EventController extends Controller
+class EventController extends Controller 
 {
     public function __construct()
     {
@@ -28,6 +30,49 @@ class EventController extends Controller
             ->get();
         return view('dashboard.acara.index', compact('acaras'));
     }
+public function ajax_tbl_event(Request $request)
+    {
+        $Event = Event::latest()->get();
+        return DataTables::of($Event)
+                 ->editColumn('aksi_input', function ($data) {
+                    return ' <input type="checkbox" name="aksi['.$data->id.']" value="'.$data->id.'">
+                             <input type="hidden" name="id_event_pengguna[]" value="'.$data->id.'">';
+                }) 
+                ->editColumn('nama_kategori', function ($data) {
+                    return @$data->kategori['nama_kategori'];
+                })
+                   ->editColumn('jumlah_peserta', function ($data) {
+                   @$dataid= $this->hashids->decode(@$data->id)[0];
+                    return EventPengguna::where('event_id',@$dataid)->count();
+                })
+                 ->editColumn('aksi', function ($data) {
+                        return  '<a href="'.route('acara.edit', $data['id']).'"
+                                            class="btn btn-outline-secondary btn-sm edit"
+                                            data-bs-container="#tooltip-container0" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-outline-secondary btn-sm"
+                                            data-bs-container="#tooltip-container0" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Delete" data-id="'.$data['id'].'"
+                                            data-title="'.$data['title'].'" onclick="confirmDelete(this)">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                        <form id="form-delete-'.$data['id'].'" method="POST"
+                                            action="'.route('acara.destroy', $data['id']).' }}">
+                                           
+                                        </form>';
+                   
+                })
+                ->editColumn('created_at', function ($created) {
+                    return \Carbon\Carbon::parse($created->created_at)->isoFormat('dddd, DD MMMM Y');
+                }) 
+                ->rawColumns(['aksi'])
+                ->addIndexColumn()
+                ->make(true); 
+    }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -53,7 +98,7 @@ class EventController extends Controller
         try {
             $request->hasFile('image') ? $validatedData['image'] = $request->file('image')->store('event_image') : '';
             $validatedData['kategori_id'] = $this->hashids->decode($validatedData['kategori_id'])[0];
-            $validatedData['author'] = auth()->user()->name;
+            $validatedData['author'] = @$request->input('author')?@$request->input('author'):Auth::user()->name;
             Event::create($validatedData);
             return to_route('acara.index')->with('success', 'Data berhasil ditambahkan');
         } catch (\Throwable $th) {
@@ -99,6 +144,7 @@ class EventController extends Controller
                 Storage::delete($events->first()->image);
                 $validatedData['image'] = $request->file('image')->store('event_image');
             endif;
+            $validatedData['author'] = @$request->input('author')?@$request->input('author'):Auth::user()->name;
 
             $events->update($validatedData);
 

@@ -59,7 +59,7 @@
                                 </div>
                                 @if($wisataPostingan['id_ruangan']) 
                                 <div class="postbox__text">
-                                    <a href="{{ route('virtual-view.index') }}?r={{$wisataPostingan['id_ruangan']}}" class="btn btn-danger">Lihat Wisata 360</a>
+                                    <a target="_blank" href="{{ route('virtual-view.index') }}?r={{$wisataPostingan['id_ruangan']}}" class="btn btn-danger">Lihat Wisata 360</a>
                                 </div>
                                 @endif
                             </div>

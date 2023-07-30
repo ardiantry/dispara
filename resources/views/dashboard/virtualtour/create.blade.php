@@ -148,7 +148,7 @@ min-height: 120px;
             <div class="card-body">
 <!-- Nav tabs -->
                 <ul class="nav nav-pills col-md-12" role="tablist">
-                    <li class="nav-item waves-effect waves-light" ><a id="tab1"  >1. Detail Ruangan</a></li>
+                    <li class="nav-item waves-effect waves-light" ><a id="tab1"  >1. Detail View</a></li>
                     <li class="nav-item waves-effect waves-light" ><a   id="tab2"  >2. Input Foto 360</a></li>
                     <li class="nav-item waves-effect waves-light" ><a   id="tab3"   >3. Mapping</a></li> 
                 </ul> 
@@ -157,19 +157,19 @@ min-height: 120px;
                     <div class="tab-pane p-3" id="DetailRuangan" role="tabpanel">  
                         <form id="simpanNamavirtual" name="simpanNamavirtual">
                             <div class="form-group mb-3">
-                                    <label>Nama Ruangan</label>
+                                    <label>Nama View</label>
                                     <input type="text" name="nama_ruangan" class="form-control">
                             </div>
                              <div class="form-group  mb-3">
-                                    <label>Room</label>
+                                    <label>View</label>
                                     <select name="kode_ruangan" class="form-control" >
-                                      <option value="FrontRoom">Front Room</option>
-                                      <option value="InRoom">In Room</option>
+                                      <option value="FrontRoom">Utama</option>
+                                      <option value="InRoom">Lainnya</option>
 
                                     </select>
                             </div>
                              <div class="form-group mb-3">
-                                    <label>Deskripsi Ruangan</label>
+                                    <label>Deskripsi View</label>
                                    <textarea class="form-control" name="deskripsi"></textarea>
                             </div>
                               <div class="form-group row justify-content-end">

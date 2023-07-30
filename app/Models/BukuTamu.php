@@ -22,9 +22,9 @@ class BukuTamu extends Model
         return $hashids->encode($this->attributes['id']);
     }
 
-    public function user()
+    public function user() 
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Pengguna::class, 'user_id');
     }
 
     public function lastVisitedPosts(): BelongsToMany
