@@ -85,11 +85,16 @@
                             @enderror
                         </div>
                         <div class="mb-3">
+                            <label >Link Google Map</label>
+                            <input type="text" class="form-control" name="link_google_map" value="{{old('link_google_map', $wisata['link_google_map'])}}"
+                                placeholder="Link Google Map"  />
+                        </div>
+                        <div class="mb-3">
                             <label for="elm1">Virtual Tour</label>
                            <select class="form-control" name="id_ruangan">
                                <option>--Pilih Virtual Tour--</option>
                                @php
-                               $tbvp=DB::table('tb_ruang')->select('id','nama')->get();
+                                $tbvp=DB::table('tb_katagori_ruangan')->select('id','nama')->get();
                                @endphp
                                @foreach($tbvp as $vp)
                                @php 

@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use PDF;
 use Exception;
-use Session;
+use Session; 
 use App\Models\User;
 use Hashids\Hashids;
 use App\Models\Pengguna;
 use App\Helpers\Activity;
 use App\Models\Pengaturan;
 use Illuminate\Support\Str; 
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;  
 use App\Mail\VerifyPenggunaEmail;
 use App\Exports\MemberExportExcel;
 use App\Imports\MemberImportExcel;
@@ -30,6 +30,9 @@ use App\Http\Requests\UpdatePenggunaRequest;
 use Illuminate\Support\Carbon;
 use App\Models\EventPengguna;
 use App\Models\BukuTamu;
+use App\Models\{Wisata, KategoriWisata};
+use App\Models\KatagoriVirtual; 
+use App\Models\Virtualtour; 
 
 class PenggunaController extends Controller
 {
@@ -241,7 +244,7 @@ public function memberLogout(Request $request)
     {
         $id         = Session::get('session_pengguna')->id;
         $tamu       = BukuTamu::latest()->where('user_id', $id)->first(); 
-        $id_tamu    = $this->Hashids->decode($tamu->id)[0];
+        $id_tamu    = @$tamu->id?$this->Hashids->decode(@$tamu->id)[0]:0;
         $EventPengguna = EventPengguna::latest()->where('tamu_id',  $id_tamu)->get(); 
         return DataTables::of($EventPengguna)
                  ->editColumn('aksi_input', function ($data) {
@@ -660,7 +663,7 @@ public function memberLogout(Request $request)
             ->addIndexColumn()
             ->make(true);
     }
-
+ 
 
     public function ajax_tableMember_noact()
     {
@@ -723,4 +726,193 @@ public function memberLogout(Request $request)
             ->addIndexColumn()
             ->make(true);
     }
+
+public function ajax_tbl_wisata(Request $request)
+    {
+
+        $id         =@Session::get('session_pengguna')->id;
+        $hashids_   =new \Hashids\Hashids(env('MY_SECRET_SALT_KEY', 'MySecretSalt'));
+        $data       =Wisata::where('author_member',$id)->latest()->get();
+       // $data   =Wisata::latest()->get();
+
+        return DataTables::of($data)
+                ->editColumn('created_at', function ($created) {
+                    return \Carbon\Carbon::parse($created->created_at)->isoFormat('dddd, DD MMMM Y');
+                })
+                ->editColumn('nama_kategori', function ($data) {
+                    return $data->kategori->nama_kategori;
+                })
+                ->editColumn('id_kat', function ($data) use ($hashids_) {
+                    return  $hashids_->decode($data->kategori->id)[0];
+                     
+                })
+                 ->editColumn('action', function ($action) {
+                return '<i class="dripicons-pencil btn btn-success btn-sm Edit_wis"  data-id="'.@$action->id.'"></i> 
+                        <i class="dripicons-trash btn btn-danger btn-sm Hapus_wis" data-id="'.@$action->id.'"  ></i>';
+            })
+                ->addIndexColumn()
+                ->make(true); 
+    }
+public function prosessimpanwisata(Request $request)
+    {
+
+        
+            if($request->hasFile('image'))
+            {
+                $validatedData['image']         = $request->file('image')->store('wisata_image'); 
+            } 
+            $validatedData['title']         = $request->input('title'); 
+            $validatedData['isi']           = $request->input('isi'); 
+            $validatedData['id_ruangan']    = $request->input('id_ruangan');
+            $validatedData['author']        = @Session::get('session_pengguna')->nama; 
+            $validatedData['author_member'] = @Session::get('session_pengguna')->id;  
+            $validatedData['kategori_id']   = $request->input('kategori_id');
+            $validatedData['link_google_map']   = $request->input('link_google_map'); 
+
+            if(!$request->input('id'))
+            { 
+                $validatedData['status_public'] = 'proses'; 
+                Wisata::create($validatedData);
+            }
+            else
+            { 
+                 $hashids_   =new \Hashids\Hashids(env('MY_SECRET_SALT_KEY', 'MySecretSalt'));
+                $id=$hashids_->decode($request->input('id'))[0];
+
+                Wisata::where('id',$id)->update($validatedData);
+            }
+          
+             print json_encode(array('error'=>false));
+
+
+
+    }
+    public function proseshapuswisata(Request $request)
+    { 
+            
+                $hashids_   =new \Hashids\Hashids(env('MY_SECRET_SALT_KEY', 'MySecretSalt'));
+                $id=$hashids_->decode($request->input('id'))[0]; 
+                Wisata::where('id',$id)->delete();
+           
+             print json_encode(array('error'=>false));
+
+
+
+    }
+    
+ public function ajax_tbl_KatagoriVirtual_memer(Request $req)
+    {
+        $id       = Session::get('session_pengguna')->id; 
+        $KatagoriVirtual = KatagoriVirtual::where('id_autor_member', $id)->get();
+        return DataTables::of($KatagoriVirtual)
+                 ->editColumn('action', function ($action) {
+                return '<i class="dripicons-pencil btn btn-warning btn-sm Edit_data_kat"  data-id="'.$action->id.'" data-name="'.$action->nama.'"></i>
+                        <i class="dripicons-to-do btn btn-success btn-sm detail_data_kat" data-id="'.$action->id.'"  data-name="'.$action->nama.'"></i>
+                        <i class="dripicons-trash btn btn-danger btn-sm Hapus_data_kat" data-id="'.$action->id.'"></i>
+                        ';
+            })
+                ->addIndexColumn()
+                ->make(true); 
+    }
+
+public function katagori_vrmembersave(Request $req)
+    {
+         $id       = Session::get('session_pengguna')->id; 
+         if(@$req->input('id_kategori'))
+         {
+           
+               $dec = $this->Hashids->decode(@$req->input('id_kategori'))[0];
+                KatagoriVirtual::where('id',$dec)->update([ 
+                'nama'=>$req->input('nama')
+                ]); 
+         }
+         else
+         {
+
+           KatagoriVirtual::create([ 
+            'nama'=>$req->input('nama'),
+            'id_autor_member'=>$id,
+             'status_public'=>'proses'
+            ]); 
+         }
+            print json_encode(array('error'=>false));
+    }
+ public function virtualroomkat_memberdelete(Request $req)
+    {
+        if(@$req->input('id_delete'))
+         {
+           
+               $dec = $this->Hashids->decode(@$req->input('id_delete'))[0];
+                KatagoriVirtual::where('id',$dec)->delete(); 
+         }
+          
+            print json_encode(array('error'=>false));
+    }   
+ public function ajax_tbl_virtualtour_member(Request $request)
+    {
+        
+        $id_kat      = $this->Hashids->decode($request->input('id_kat'))[0];
+        $Virtualtour = Virtualtour::where('id_kat',$id_kat)->latest()->get();
+        return DataTables::of($Virtualtour)
+                ->editColumn('created_at', function ($created) {
+                    return \Carbon\Carbon::parse($created->created_at)->isoFormat('dddd, DD MMMM Y');
+                })
+                 ->editColumn('action', function ($action) {
+                return '<i class="dripicons-pencil btn btn-success btn-sm Edit_data_vr"  data-id="'.@$action->id.'"></i>
+                        <i class="dripicons-to-do btn btn-warning btn-sm detail_vr_target" target="_balnk" href="'.url('virtual-view').'?r='.@$action->id.'" ></i>
+                        <i class="dripicons-trash btn btn-danger btn-sm Hapus_data_vr" data-id="'.@$action->id.'"  ></i>
+                        ';
+            })
+                ->addIndexColumn()
+                ->make(true); 
+    }
+ public function image_vrmembersave(Request $request)
+    {
+        
+             $error             =true;
+             $data['nama']      =$request->input('nama_ruangan');
+             $data['deskripsi'] =$request->input('deskripsi'); 
+             
+
+             
+            if($request->input('id_vir'))
+            {
+                $dec            = $this->Hashids->decode($request->input('id_vir'))[0];
+                if($request->has('file'))
+                {
+
+                    $pict_rooms     = $request->file('file')->store('pict_rooms');
+                    $data['gambar'] =$pict_rooms;
+                } 
+
+                Virtualtour::where('id',$dec)->update($data);
+                $error=false;
+            } 
+            else
+            {
+
+                if($request->has('file'))
+                {
+                    $id_kat                 =$this->Hashids->decode($request->input('id_kat'))[0];
+                    $data['id_kat']         =$id_kat;  
+                    $data['kode_ruangan']   ='FrontRoom'; 
+                    $pict_rooms             =$request->file('file')->store('pict_rooms');
+                    $data['gambar']         =$pict_rooms;
+                    Virtualtour::insert($data);
+                    $error=false;
+                }
+
+            }
+        print json_encode(array('error'=>$error));
+    }
+public function virtualroommemberdelete(Request $request)
+    {
+        
+        $dec = $this->Hashids->decode($request->input('id_delete'))[0];
+        Virtualtour::where('id',$dec)->delete();
+        DB::table('tb_marker')->where('ruangan_id',$dec)->delete();
+        print json_encode(array('error'=>false));
+    }
+
+
 }

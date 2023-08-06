@@ -1,6 +1,13 @@
 @extends('dashboard.layouts.main')
 @section('title', 'Kelola Wisata')
 @section('breadcrumb')
+<style type="text/css">
+    .note {
+  color: #bd2a2a;
+  font-size: 12px;
+  display: block;
+}
+</style>
     <!-- start page title -->
     <div class="page-title-box">
         <div class="container-fluid">
@@ -30,12 +37,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    <form id="updateperubahan" name="updateperubahan">
+                        
+                   
                     <table id="datatable" class="table table-bordered dt-responsive nowrap"
                         style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                             <tr>
                                 <th>No</th>
+                                <th><input type="checkbox" name="checkall"></th>
                                 <th data-orderable="false">Judul</th>
+                                <th data-orderable="false">Status</th>
+                                <th data-orderable="false">Author</th>
+
                                 <th data-orderable="false">Kategori</th>
                                 <th data-orderable="false">Isi</th>
                                 <th data-orderable="false">Aksi</th>
@@ -44,8 +58,19 @@
                         <tbody>
                             @forelse($wisatas as $data)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $loop->iteration }}</td> 
+                                    <th>
+                                        @if(@$data['author_member'])
+                                        <input type="hidden" name="id[]" value="{{$data['id']}}">
+                                        <input type="checkbox" name="aksi[{{$data['id']}}]" value="1">
+                                        @else
+                                        -
+                                        @endif
+                                    </th>
+
                                     <td>{{ $data['title'] }}</td>
+                                     <td>{{ @$data['author_member']?$data['status_public']:'active' }}</td>
+                                    <td>{{ $data['author'] }}<span class="note">{{@$data['author_member']?'member':'admin'}}</span></td>
                                     <td>{{ $data->kategori['nama_kategori'] }}</td>
                                     <td>
                                         <!-- Small modal -->
@@ -56,7 +81,7 @@
                                         <div class="modal fade modal{{ $data['id'] }}" tabindex="-1"
                                             aria-labelledby="#exampleModalFullscreenLabel" style="display: none;"
                                             aria-hidden="true">
-                                            <div class="modal-dialog modal-fullscreen">
+                                            <div class="modal-dialog modal-fullscreen"> 
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title mt-0" id="exampleModalFullscreenLabel">
@@ -80,23 +105,23 @@
                                         </div><!-- /.modal -->
                                     </td>
                                     <td style="width: 100px" id="tooltip-container0">
+                                        @if(@$data['author_member'])
+                                            <a href="#"
+                                            class="btn btn-outline-secondary btn-sm Detail_author"
+                                             title="detail" data-id="{{$data['id']}}">
+                                            <i class="dripicons-to-do"></i>
+                                            </a>
+                                        @else
                                         <a href="{{ route('wisata.edit', $data['id']) }}"
-                                            class="btn btn-outline-secondary btn-sm edit"
-                                            data-bs-container="#tooltip-container0" data-bs-toggle="tooltip"
-                                            data-bs-placement="top" title="Edit">
+                                            class="btn btn-outline-secondary btn-sm edit" title="Edit">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="javascript:void(0);" class="btn btn-outline-secondary btn-sm"
-                                            data-bs-container="#tooltip-container0" data-bs-toggle="tooltip"
-                                            data-bs-placement="top" title="Delete" data-id="{{ $data['id'] }}"
-                                            data-title="{{ $data['title'] }}" onclick="confirmDelete(this)">
+                                        @endif
+                                        <a href="javascript:void(0);" class="btn btn-outline-secondary btn-sm hapuswisata"
+                                            data-id="{{ $data['id'] }}"
+                                            data-title="{{ $data['title'] }}" >
                                             <i class="fas fa-trash"></i>
-                                        </a>
-                                        <form id="form-delete-{{ $data['id'] }}" method="POST"
-                                            action="{{ route('wisata.destroy', $data['id']) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
+                                        </a> 
                                     </td>
                                 </tr>
                             @empty
@@ -108,9 +133,70 @@
                             @endforelse
                         </tbody>
                     </table>
+                    <div class="form-group row">
+                        <div class="col-3">
+                            <div class="input-group">
+                                <select class="form-control" name="status">
+                                    <option value="active">Setujui</option>
+                                    <option value="tolak">Tolak</option>
 
+                                </select>
+                                <span class="input-group-append">
+                                    <button type="submit" class="btn btn-success">Simpan</button>
+                                </span>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    </form>
                 </div>
             </div>
         </div> <!-- end col -->
     </div> <!-- end row -->
+    <script type="text/javascript">
+         $('body').delegate('input[name="checkall"]','change',function(e)
+                {
+                    e.preventDefault();
+
+                    if($(this).is(':checked'))
+                    {
+                        $('input[name*="aksi"]').prop('checked',true);
+                    }
+                    else
+                    {
+                         $('input[name*="aksi"]').prop('checked',false);
+                    }
+                });
+             $('body').delegate('#updateperubahan','submit',function(e)
+                    { 
+                        e.preventDefault();
+                        var $this           =$(this);   
+                        var form_           = document.forms.namedItem("updateperubahan");
+                        const form_data     = new FormData(form_); 
+                        form_data.append('_token', '{{csrf_token()}}'); 
+                        fetch('{{route('wisata.update.save')}}', { method: 'POST',body:form_data}).then(res => res.json()).then(data => 
+                        {
+                               window.location.reload();
+                        });
+                  });
+                    
+                 $('body').delegate('.hapuswisata','click',function(e)
+                    { 
+                        e.preventDefault();
+                        if(!confirm('yakin menghapus data?'))
+                        {
+                            return;
+                        }
+                        var $this           =$(this);   
+                        const form_hps     = new FormData();  
+                        form_hps.append('_token', '{{csrf_token()}}'); 
+                        form_hps.append('_method', 'DELETE');  
+                        fetch(`{{url('dashboard/wisata')}}/${$(this).data('id')}`, { method: 'POST',body:form_hps}).then(res => res.json()).then(data => 
+                        {
+                              window.location.reload();
+                        });
+                  });    
+
+
+    </script>
 @endsection

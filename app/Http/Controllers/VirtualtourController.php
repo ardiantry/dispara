@@ -34,15 +34,15 @@ class VirtualtourController extends Controller
  public function ajax_tbl_virtualtour(Request $request)
     {
         
-        $id_kat = $this->Hashids->decode($request->id_kat)[0];
+        $id_kat = $this->Hashids->decode($request->input('id_kat'))[0];
         $Virtualtour = Virtualtour::where('id_kat',$id_kat)->latest()->get();
         return DataTables::of($Virtualtour)
                 ->editColumn('created_at', function ($created) {
                     return \Carbon\Carbon::parse($created->created_at)->isoFormat('dddd, DD MMMM Y');
                 })
                  ->editColumn('action', function ($action) {
-                return '<i class="dripicons-pencil btn btn-success btn-sm Edit_data"  data-id="'.$action->id.'" ></i>
-                        <i class="dripicons-trash btn btn-danger btn-sm Hapus_data" data-id="'.$action->id.'"></i>';
+                return '<i class="dripicons-pencil btn btn-success btn-sm Edit_data"  data-id="'.@$action->id.'"></i>
+                        <i class="dripicons-trash btn btn-danger btn-sm Hapus_data" data-id="'.@$action->id.'"  ></i>';
             })
                 ->addIndexColumn()
                 ->make(true); 
@@ -396,27 +396,81 @@ public function simpanmarker(Request $req)
  public function katagori_vrsave(Request $req)
     {
          
+         if(@$req->input('id_kategori'))
+         {
+           
+               $dec = $this->Hashids->decode(@$req->input('id_kategori'))[0];
+                KatagoriVirtual::where('id',$dec)->update([ 
+                'nama'=>$req->input('nama')
+                ]); 
+         }
+         else
+         {
+
            KatagoriVirtual::create([ 
             'nama'=>$req->input('nama')
             ]); 
+         }
             print json_encode(array('error'=>false));
     }
  public function ajax_tbl_KatagoriVirtual(Request $req)
     {
          
-         $KatagoriVirtual = KatagoriVirtual::get();
+         $KatagoriVirtual = KatagoriVirtual::get(); 
         return DataTables::of($KatagoriVirtual)
-                 ->editColumn('action', function ($action) {
-                return '<i class="dripicons-pencil btn btn-warning btn-sm Edit_data_kat"  data-id="'.$action->id.'" ></i>
-                        <i class="dripicons-to-do btn btn-success btn-sm detail_data_kat" data-id="'.$action->id.'"></i>
-                        <i class="dripicons-trash btn btn-danger btn-sm Hapus_data_kat" data-id="'.$action->id.'"></i>
-                        ';
-            })
-                ->addIndexColumn()
-                ->make(true); 
+         ->editColumn('author', function ($data) 
+         {
+                return @$data->pengguna['nama']?@$data->pengguna['nama']:'admin';
+        })
+          ->editColumn('status', function ($data) 
+         {
+                return @$data->pengguna['nama']?@$data->status_public:'active';
+        })
+        ->editColumn('input_check', function ($data) 
+         {
+                return @$data->pengguna['nama']?'<input type="hidden" name="id[]" value="'.$data->id.'">
+                                        <input type="checkbox" name="aksi['.$data->id.']" value="1">':'-';
+        })
+         ->editColumn('action', function ($action) {
+        return '<i class="dripicons-pencil btn btn-warning btn-sm Edit_data_kat"  data-id="'.$action->id.'" data-name="'.$action->nama.'"></i>
+                <i class="dripicons-to-do btn btn-success btn-sm detail_data_kat" data-id="'.$action->id.'"  data-name="'.$action->nama.'"></i>
+                <i class="dripicons-trash btn btn-danger btn-sm Hapus_data_kat" data-id="'.$action->id.'"></i>
+                ';
+        })
+         ->rawColumns(['input_check','action'])
+        ->addIndexColumn()
+        ->make(true); 
+    }
+ public function virtualroomkatdelete(Request $req)
+    {
+         
+         if(@$req->input('id_delete'))
+         {
+           
+               $dec = $this->Hashids->decode(@$req->input('id_delete'))[0];
+                KatagoriVirtual::where('id',$dec)->delete(); 
+         }
+          
+            print json_encode(array('error'=>false));
     }
 
+ public function virtual_katupdatesave(Request $request)
+    {
+          
+        if(@$request->input('id'))
+        {
+            foreach (@$request->input('id') as $key) 
+            {
+                  $id =  $this->Hashids->decode($key)[0];
+                  if(@$request->input('aksi')[$key])
+                  { 
+                        KatagoriVirtual::where('id',$id)->update(['status_public'=>@$request->input('status')]);
+                  }
+            }
 
+        }
+        print json_encode(array('error'=>false)); 
+    }
 
 
     

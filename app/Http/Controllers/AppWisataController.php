@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\TamuPostVisit;
 use App\Models\KategoriWisata;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\KatagoriVirtual;
 class AppWisataController extends Controller
 {
     public function __construct()
@@ -18,13 +18,14 @@ class AppWisataController extends Controller
         $this->hashids = new Hashids(env('MY_SECRET_SALT_KEY', 'MySecretSalt'));
     }
 
-    public function index(Request $request)
+    public function index(Request $request) 
     {
         $query = $request->input('search_query');
 
         if ($d = request('kategori-destinasi')) {
             $kategoriWisata = KategoriWisata::query()
                 ->where('nama_kategori', '=', $d)
+                
                 ->first();
             $wisata_id = $this->hashids->decode($kategoriWisata['id'])[0];
 
@@ -32,11 +33,19 @@ class AppWisataController extends Controller
                 ->where('kategori_id', '=', $wisata_id)->paginate(3);
         } elseif ($query) {
             $wisatas = Wisata::query()
+                ->whereNotNull('author_member')
+                ->where('status_public','active')
                 ->where('title', 'LIKE', "%{$query}%")
-                ->orWhere('isi', 'LIKE', "%{$query}%")
+                ->where('isi', 'LIKE', "%{$query}%") 
+                ->orWhereNull('author_member')
+                ->where('title', 'LIKE', "%{$query}%")
+                ->where('isi', 'LIKE', "%{$query}%")
                 ->paginate(3);
         } else {
             $wisatas = Wisata::query()
+                ->whereNotNull('author_member')
+                ->where('status_public','active') 
+                ->orWhereNull('author_member')
                 ->paginate(3);
         }
         // $kategorisWisata = KategoriWisata::query()
@@ -56,7 +65,7 @@ class AppWisataController extends Controller
 
     public function show($postId)
     {
-        try {
+       // try {
             // Dekode ID Postingan
             $wisata_id = $this->hashids->decode($postId)[0];
 
@@ -90,13 +99,18 @@ class AppWisataController extends Controller
             }
             $wisataPostingan = Wisata::find($wisata_id);
             if(@$wisataPostingan->id_ruangan)
-            {
+            { 
+             
+                $ruangan=DB::table('tb_ruang')->where('id_kat',@$wisataPostingan->id_ruangan)->where('kode_ruangan','FrontRoom')->first();
+
+           // dd(@$ruangan);
                 $hashids = new Hashids(env('MY_SECRET_SALT_KEY', 'MySecretSalt'));
-               @$wisataPostingan->id_ruangan=$hashids->encode(@$wisataPostingan->id_ruangan);
+               @$wisataPostingan->id_ruangan=$hashids->encode(@$ruangan->id); 
+              
             }
-        } catch (\Throwable $th) {
-            return redirect()->back();
-        }
+        // } catch (\Throwable $th) {
+        //   //  return redirect()->back();
+        // }
 
         return view('app.wisata.show', compact('wisataPostingan')); 
     }

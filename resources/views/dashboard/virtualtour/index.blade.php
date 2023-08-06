@@ -36,14 +36,33 @@
                         <div class="card">
                             <div class="card-body">
                                     <div class="table-responsive">
+                                         <form id="updateperubahan" name="updateperubahan">
                                         <table id="KatagoriVirtual" class="table table-bordered dt-responsive nowrap">
                                         <thead>
                                         <tr>
-                                        <th>Nama Virtual</th> 
-                                         <th>Aksi</th> 
+                                             <th><input type="checkbox" name="checkall"></th> 
+                                            <th>Nama Virtual</th> 
+                                            <th>Author</th> 
+                                            <th>Status</th>  
+                                            <th>Aksi</th> 
                                         </tr>
                                         </thead>
                                         </table>
+                                        <div class="form-group row">
+                                        <div class="col-3">
+                                            <div class="input-group">
+                                                <select class="form-control" name="status">
+                                                    <option value="active">Setujui</option>
+                                                    <option value="tolak">Tolak</option>
+
+                                                </select>
+                                                <span class="input-group-append">
+                                                    <button type="submit" class="btn btn-success">Simpan</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        </form>
                                     </div>
                                 
                             </div>
@@ -70,7 +89,7 @@
                 <div class="table-responsive">
                     <table id="tbl_virtualtour" class="table table-bordered dt-responsive nowrap">
                     <thead>
-                    <tr>
+                    <tr> 
                     <th>Nama View</th>
                     <th>Deskripsi</th>
                     <th>Tanggal</th>
@@ -126,11 +145,19 @@
                 } ],
                 ajax: '{{ route('ajax_tbl_KatagoriVirtual') }}',
                  columns: [
+                    { 
+                        data: 'input_check', 
+                        name: 'input_check', 
+                        orderable   :  false,
+                        searchable  :  false,
+                    }, 
                     { data: 'nama', name: 'nama' }, 
+                    { data: 'author', name: 'author' }, 
+                    { data: 'status', name: 'status' },   
                     { 
                         orderable   :  false,
                         searchable  :  false,
-                        data        :   'action',
+                        data        : 'action',
                         name        : 'action'
                     }
                 ]
@@ -153,12 +180,28 @@
              $('#ModalKatagori').modal('show');
 
         });
+
+     $('body').delegate('.Edit_data_kat','click',function(e)
+            {
+            e.preventDefault();
+            window.id_kategori=undefined;
+            window.nama_kategori=undefined;
+            if($(this).data('id'))
+            {
+                window.id_kategori=$(this).data('id');
+                   window.nama_kategori=$(this).data('name');
+            }
+             $('#ModalKatagori').modal('show');
+
+        });
+
+
         $('#ModalKatagori').on('shown.bs.modal', function (e) 
         {
             $('#UpdateKatagori').find('input[name="nama"]').val('');
-            if(window.id_kategori!=undefined)
+            if(window.nama_kategori!=undefined)
             {
-               // $('#UpdateKatagori').find('input[name="nama"]').val('');
+              $('#UpdateKatagori').find('input[name="nama"]').val(window.nama_kategori);
             }
         });
 
@@ -185,19 +228,42 @@
                 });
       });
         
+
+
+
+
          $('body').delegate('.detail_data_kat','click',function(e)
         { 
             e.preventDefault();
             window.id_kategori=$(this).data('id');
-            $('#headerLabel').html($(this).text());
+            $('#headerLabel').html($(this).data('name'));
             $('#ModalRuangan').modal('show');
              
         });
+
+         $('body').delegate('.Hapus_data_kat','click',function(e)
+        { 
+            e.preventDefault();
+           var Hapus_data_kat=$(this).data('id'); 
+            if(!confirm('You sure to delete?')) 
+            {
+                return;
+            }
+             const form_dtl   = new FormData(); 
+            form_dtl.append('_token', '{{csrf_token()}}');
+            form_dtl.append('id_delete',  Hapus_data_kat); 
+            fetch('{{route('virtualroomkat.delete')}}', { method: 'POST',body:form_dtl}).then(res => res.json()).then(data => 
+                {
+                     $('#KatagoriVirtual').DataTable().ajax.reload();
+                });
+
+             
+        });
+
         $('#ModalRuangan').on('shown.bs.modal', function (e) 
         {
-             var id_kat=window.id_kategori;
-
-              var tbl_virtualtour_detail = $('#tbl_virtualtour').DataTable({
+             var id_kat=window.id_kategori; 
+             window.vr = $('#tbl_virtualtour').DataTable({
                         "lengthMenu": [
                         [ 10, 25, 50, 100, 1000, -1 ],
                         [ '10 baris', '25 baris', '50 baris', '100 baris', '1000 baris', 'Seluruh Data' ]
@@ -216,13 +282,16 @@
                             { 
                                 orderable   :  false,
                                 searchable  :  false,
-                                data        :   'action',
+                                data        : 'action',
                                 name        : 'action'
                             }
                         ]
                     });
         });
 
+        $('#ModalRuangan').on('hidden.bs.modal', function (e) {
+                window.vr.destroy();
+        });
 
         $('body').delegate('.Edit_data','click',function(e)
         {
@@ -232,7 +301,7 @@
         $('body').delegate('.Hapus_data','click',function(e)
         {
             e.preventDefault();
-            if(!confirm('You sure to delete this rooms?')) 
+            if(!confirm('You sure to delete?')) 
             {
                 return;
             }
@@ -254,7 +323,32 @@
                 } 
              
         });
+ $('body').delegate('input[name="checkall"]','change',function(e)
+                {
+                    e.preventDefault();
 
+                    if($(this).is(':checked'))
+                    {
+                        $('input[name*="aksi"]').prop('checked',true);
+                    }
+                    else
+                    {
+                         $('input[name*="aksi"]').prop('checked',false);
+                    }
+                });
+
+     $('body').delegate('#updateperubahan','submit',function(e)
+                    { 
+                        e.preventDefault();
+                        var $this           =$(this);   
+                        var form_           = document.forms.namedItem("updateperubahan");
+                        const form_data     = new FormData(form_); 
+                        form_data.append('_token', '{{csrf_token()}}'); 
+                        fetch('{{route('virtual_kat.update.save')}}', { method: 'POST',body:form_data}).then(res => res.json()).then(data => 
+                        {
+                             $('#KatagoriVirtual').DataTable().ajax.reload();
+                        });
+                  });
 
     });
 </script>

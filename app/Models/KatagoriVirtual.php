@@ -19,5 +19,8 @@ class KatagoriVirtual extends Model
         return $hashids->encode($this->attributes['id']);
     }
 
-   
+     public function pengguna()
+    {
+        return $this->belongsTo(Pengguna::class, 'id_autor_member');
+    }
 }

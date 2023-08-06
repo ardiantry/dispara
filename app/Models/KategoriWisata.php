@@ -18,8 +18,6 @@ class KategoriWisata extends Model
         return $hashids->encode($this->attributes['id']);
     }
 
-    public function wisatas_postingan()
-    {
-        return $this->hasMany(Wisata::class, 'kategori_id');
-    }
+  
 }
+ 

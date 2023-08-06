@@ -143,7 +143,7 @@ if(@Session::get('session_pengguna'))
         <div class="tab-content" id="pills-tabContent">
             <!-- login -->
           <div class="tab-pane fade show active" id="Loginmember" role="tabpanel" aria-labelledby="pills-Loginmember-tab">
-            <form id="LoginMember" name="LoginMember">
+            <form id="LoginMembernav" name="LoginMembernav">
                 <div class="msg-alert"></div>
                 <div class="form-group mb-3">
                     <label>Email</label>
@@ -253,7 +253,7 @@ if(@Session::get('session_pengguna'))
 
             });  
         });
-         $('body').delegate('#LoginMember','submit',function(e)
+         $('body').delegate('#LoginMembernav','submit',function(e)
         {
          e.preventDefault();
             var $this=$(this);
@@ -261,7 +261,7 @@ if(@Session::get('session_pengguna'))
             $this.find('.msg-alert').empty();
             $this.find('button[type="submit"]').html('loading...');
             $this.find('button[type="submit"]').attr('disabled','disabled');  
-            const formsimpan    = document.forms.namedItem('LoginMember'); 
+            const formsimpan    = document.forms.namedItem('LoginMembernav'); 
             const Form_simpan   = new FormData(formsimpan);
             Form_simpan.append('_token', '{{csrf_token()}}'); 
             fetch('{{route('login.member')}}', { method: 'POST',body:Form_simpan}).then(res => res.json()).then(data => 

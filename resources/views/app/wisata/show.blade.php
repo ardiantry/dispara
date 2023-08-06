@@ -56,12 +56,16 @@
                                 </h3>
                                 <div class="postbox__text">
                                     {!! $wisataPostingan['isi'] !!}
+
                                 </div>
-                                @if($wisataPostingan['id_ruangan']) 
                                 <div class="postbox__text">
+                                @if($wisataPostingan['id_ruangan']) 
                                     <a target="_blank" href="{{ route('virtual-view.index') }}?r={{$wisataPostingan['id_ruangan']}}" class="btn btn-danger">Lihat Wisata 360</a>
-                                </div>
                                 @endif
+                                @if( $wisataPostingan['link_google_map'] )
+                                    <a href="{{$wisataPostingan['link_google_map']}}"  class="btn btn-primary" target="_blank">Gmap</a>
+                                    @endif
+                                </div>
                             </div>
                         </article>
                     </div>

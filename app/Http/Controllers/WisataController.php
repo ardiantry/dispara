@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\{Wisata, KategoriWisata};
 use App\Http\Requests\StoreWisataRequest;
-use App\Http\Requests\UpdateWisataRequest;
+use App\Http\Requests\UpdateWisataRequest; 
+use Illuminate\Http\Request;
 
 class WisataController extends Controller
 {
@@ -52,8 +53,10 @@ class WisataController extends Controller
         try {
             $request->hasFile('image') ? $validatedData['image'] = $request->file('image')->store('wisata_image') : '';
             $validatedData['kategori_id'] = $this->hashids->decode($validatedData['kategori_id'])[0];
-            $validatedData['author'] = auth()->user()->name; 
+            $validatedData['author'] = auth()->user()->name;  
             $validatedData['id_ruangan'] = $request->input('id_ruangan'); 
+            $validatedData['link_google_map'] = $request->input('link_google_map'); 
+
             Wisata::create($validatedData);
             return to_route('wisata.index')->with('success', 'Data berhasil ditambahkan');
         } catch (\Throwable $th) {
@@ -62,12 +65,7 @@ class WisataController extends Controller
     }
 
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Wisata  $wisata
-     * @return \Illuminate\Http\Response
-     */
+   
     public function edit($hashids)
     {
         try {
@@ -81,13 +79,7 @@ class WisataController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateWisataRequest  $request
-     * @param  \App\Models\Wisata  $wisata
-     * @return \Illuminate\Http\Response
-     */
+   
     public function update(UpdateWisataRequest $request, $hashids)
     {
         $validatedData = $request->validated();
@@ -97,6 +89,8 @@ class WisataController extends Controller
                 ->where('id', '=', $id);
             $validatedData['kategori_id'] = $this->hashids->decode($validatedData['kategori_id'])[0];
             $validatedData['id_ruangan'] = $request->input('id_ruangan'); 
+            $validatedData['link_google_map'] = $request->input('link_google_map'); 
+            
             if ($request->hasFile('image')) :
                 Storage::delete($berita->first()->image);
                 $validatedData['image'] = $request->file('image')->store('wisata_image');
@@ -110,12 +104,9 @@ class WisataController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Wisata  $wisata
-     * @return \Illuminate\Http\Response
-     */
+
+
+  
     public function destroy($hashids)
     {
         try {
@@ -131,4 +122,25 @@ class WisataController extends Controller
             return back()->with('success', 'Terjadi kesalahan');
         }
     }
+
+
+ public function wisataupdatesave(Request $request)
+    {
+        if(@$request->input('id'))
+        {
+            foreach (@$request->input('id') as $key) 
+            {
+                  $id = $this->hashids->decode($key)[0];
+                  if(@$request->input('aksi')[$key])
+                  { 
+                        Wisata::where('id',$id)->update(['status_public'=>@$request->input('status')]);
+                  }
+            }
+
+        }
+        print json_encode(array('error'=>false));
+    }
+
+   
+    
 }

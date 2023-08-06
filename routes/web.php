@@ -15,7 +15,7 @@ use App\Http\Controllers\{
     KategoriBeritaController,
     KategoriEventController,
     KategoriWisataController, 
-    PengaturanController,
+    PengaturanController, 
     ProfileController,
     WisataController,
     ArtikelController,
@@ -40,7 +40,15 @@ Route::post('/member/Logout', [PenggunaController::class,'memberLogout'])->name(
 Route::post('/edit/member', [PenggunaController::class,'editmember'])->name('edit.member');
 Route::get('ajax-tbl-Eventr', [PenggunaController::class,'ajax_tbl_Event'])->name('ajax_tbl_Event');
 Route::post('/proses-event', [EventPenggunaController::class,'prosesevent'])->name('proses.event');
-
+Route::get('ajax-tbl-wisata', [PenggunaController::class,'ajax_tbl_wisata'])->name('ajax_tbl_wisata');
+Route::post('proses-simpan-wisata', [PenggunaController::class,'prosessimpanwisata'])->name('proses.simpan.wisata');
+Route::post('proses-hapus-wisata', [PenggunaController::class,'proseshapuswisata'])->name('proses.hapus.wisata');
+Route::get('/ajax-tbl-KatagoriVirtual-memer', [PenggunaController::class,'ajax_tbl_KatagoriVirtual_memer'])->name('ajax_tbl_KatagoriVirtual_memer');
+Route::post('/katagori_vr-member-save', [PenggunaController::class,'katagori_vrmembersave'])->name('katagori_vr.member.save');
+Route::post('/virtualroomkat-member-delete', [PenggunaController::class,'virtualroomkat_memberdelete'])->name('virtualroomkat_member.delete');
+Route::get('/ajax-tbl-virtualtour',[PenggunaController::class,'ajax_tbl_virtualtour_member'])->name('ajax_tbl_virtualtour_member');
+Route::post('/image-vrmember-save', [PenggunaController::class,'image_vrmembersave'])->name('image_vr.member.save');
+Route::post('/virtualroom-member-delete', [PenggunaController::class,'virtualroommemberdelete'])->name('virtualroommember.delete');
 
 
 
@@ -101,6 +109,9 @@ Route::prefix('dashboard')->group(function () {
         Route::get('', [HomeController::class, 'dashboard'])->name('dashboard');
         // Menu Event & Pengunjung
         Route::resource('/acara', EventController::class);
+        Route::post('/hpus-acara', [EventController::class, 'hapusacara'])->name('hapusacara');
+
+
         Route::get('/ajax_tbl_event', [EventController::class,'ajax_tbl_event'])->name('ajax_tbl_event');
         
         
@@ -120,7 +131,11 @@ Route::prefix('dashboard')->group(function () {
         Route::resource('/kategori-artikel', KategoriArtikelController::class);
         // Menu Wisata
         Route::resource('/wisata', WisataController::class);
+        Route::post('/wisata-update-save', [WisataController::class,'wisataupdatesave'])->name('wisata.update.save');
+
+        
         Route::resource('/kategori-wisata', KategoriWisataController::class);
+
 
         //virtual tour
         Route::get('/virtual-tour', [VirtualtourController::class, 'index'])->name('virtual.index');
@@ -142,6 +157,9 @@ Route::prefix('dashboard')->group(function () {
 
         Route::post('/katagori_vr-save', [VirtualtourController::class,'katagori_vrsave'])->name('katagori_vr.save');
         Route::get('/ajax-tbl-KatagoriVirtual', [VirtualtourController::class,'ajax_tbl_KatagoriVirtual'])->name('ajax_tbl_KatagoriVirtual');
+        Route::post('/virtualroomkat-delete', [VirtualtourController::class,'virtualroomkatdelete'])->name('virtualroomkat.delete');
+Route::post('/virtual_kat-update-save', [VirtualtourController::class,'virtual_katupdatesave'])->name('virtual_kat.update.save');
+
 
 
 

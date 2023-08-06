@@ -52,16 +52,12 @@ public function ajax_tbl_event(Request $request)
                                             data-bs-placement="top" title="Edit">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="javascript:void(0);" class="btn btn-outline-secondary btn-sm"
-                                            data-bs-container="#tooltip-container0" data-bs-toggle="tooltip"
-                                            data-bs-placement="top" title="Delete" data-id="'.$data['id'].'"
-                                            data-title="'.$data['title'].'" onclick="confirmDelete(this)">
+                                        <a href="#" class="btn btn-outline-secondary HPSEvent"
+                                            data-bs-container="#tooltip-container0" title="Delete" data-id="'.$data['id'].'"
+                                            data-title="'.$data['title'].'">
                                             <i class="fas fa-trash"></i>
                                         </a>
-                                        <form id="form-delete-'.$data['id'].'" method="POST"
-                                            action="'.route('acara.destroy', $data['id']).' }}">
-                                           
-                                        </form>';
+                                        ';
                    
                 })
                 ->editColumn('created_at', function ($created) {
@@ -175,4 +171,14 @@ public function ajax_tbl_event(Request $request)
             return back()->with('success', 'Terjadi kesalahan');
         }
     }
+public function hapusacara(Request $request)
+    {
+         
+            $id = $this->hashids->decode( $request->input('id'))[0];
+            $events = DB::table('events')->where('id', '=', $id);
+           $events->delete();
+         print json_encode(array('error'=>false))
+        
+    }
+
 }

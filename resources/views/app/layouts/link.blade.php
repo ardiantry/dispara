@@ -11,7 +11,7 @@
 <!-- Icons Css -->
 
 
-
+<link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="{{ asset('app/assets/css/meanmenu.css') }}">
 <link rel="stylesheet" href="{{ asset('app/assets/css/animate.css') }}">
 <link rel="stylesheet" href="{{ asset('app/assets/css/slick.css') }}">

@@ -91,6 +91,23 @@
             ]
             }); 
 
+  $('body').delegate('.HPSEvent','click',function(e)
+  {
+    e.preventDefault();
+    if(!confirm('Yakin menghapus data?'))
+    {
+        return false;
+    }
+    const Form_hps   = new FormData();
+            Form_hps.append('_token', '{{csrf_token()}}'); 
+            Form_hps.append('id', $(this).data('id')); 
+
+            fetch('{{route('member.Logout')}}', { method: 'POST',body:Form_hps}).then(res => res.json()).then(data => 
+            {
+             $('#datatable').DataTable().ajax.reload();
+            });
+  });
+
   }); 
 </script>
 @endsection

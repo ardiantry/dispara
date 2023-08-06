@@ -246,8 +246,7 @@ $tb_artikel=App\Models\Artikel::limit(3)->get();
 
 
 @php
-$tbWisata=App\Models\Wisata::limit(3)->get();
-//dd($tb_event);
+$tbWisata=App\Models\Wisata::whereNotNull('author_member')->where('status_public','active')->orWhereNull('author_member')->limit(3)->get(); 
 @endphp
     <section class="bg-grey  blog-area pt-115 pb-110 wow fadeInUp" data-wow-duration=".8s" data-wow-delay=".3s">
         <div class="container">
